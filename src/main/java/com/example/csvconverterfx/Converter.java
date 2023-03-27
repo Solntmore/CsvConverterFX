@@ -7,6 +7,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class Converter {
@@ -29,6 +31,7 @@ public class Converter {
     public void convertXlsToCsv() {
         try {
             FileOutputStream fos = new FileOutputStream(outDirectory + "\\output.txt");
+            PrintStream printStream = new PrintStream(fos, false, StandardCharsets.UTF_8);
 
             XSSFWorkbook wBook = new XSSFWorkbook(
                     new FileInputStream(inDirectory));
@@ -49,18 +52,9 @@ public class Converter {
                     cell = cellIterator.next();
 
                     switch (cell.getCellType()) {
-                        case BOOLEAN:
-                            data.append("\"").append(cell.getBooleanCellValue()).append("\"").append(",");
-
-                            break;
-                        case NUMERIC:
-                            data.append("\"").append(cell.getNumericCellValue()).append("\"").append(",");
-
-                            break;
                         case STRING:
                             data.append("\"").append(cell.getStringCellValue()).append("\"").append(",");
                             break;
-
                         case BLANK:
                             data.append("\"").append("\"").append(",");
                             break;
@@ -70,8 +64,8 @@ public class Converter {
                 }
             }
 
-            fos.write(data.substring(0, data.length() - 1).getBytes());
-            fos.close();
+            printStream.println(data.substring(0, data.length() - 1));
+            printStream.close();
 
         } catch (Exception ioe) {
             ioe.printStackTrace();

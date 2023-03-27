@@ -22,7 +22,7 @@ public class FileChooser_2 extends Application {
 
     private final Converter converter = new Converter();
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         launch(args);
     }
 
@@ -47,42 +47,36 @@ public class FileChooser_2 extends Application {
 
 
             EventHandler<ActionEvent> chooseEvent =
-                    new EventHandler<ActionEvent>() {
+                    e -> {
 
-                        public void handle(ActionEvent e) {
+                        // get the file selected
+                        File file = dir_chooser.showDialog(stage);
 
-                            // get the file selected
-                            File file = dir_chooser.showDialog(stage);
-
-                            if (file != null) {
-                                label.setTextFill(Color.web("#000000"));
-                                label.setText("Файлы будут сохраняться в папку по адресу " + file.getAbsolutePath()
-                                );
-                                converter.setOutDirectory(file.getAbsolutePath());
-                            }
+                        if (file != null) {
+                            label.setTextFill(Color.web("#000000"));
+                            label.setText("Файлы будут сохраняться в папку по адресу " + file.getAbsolutePath()
+                            );
+                            converter.setOutDirectory(file.getAbsolutePath());
                         }
                     };
 
             Button convertButton = new Button("Выберите файл, который хотите конвертировать.");
 
 
-            EventHandler<ActionEvent> convertEvent = new EventHandler<ActionEvent>() {
+            EventHandler<ActionEvent> convertEvent = e -> {
+                if (converter.getOutDirectory() == null) {
+                    label.setTextFill(Color.web("#FF0000"));
+                    label.setText("Сначала выберите папку сохранения, только потом можно выбрать файл, который вы " +
+                            "хотите конвертировать!");
+                } else {
+                    File file = fil_chooser.showOpenDialog(stage);
 
-                public void handle(ActionEvent e) {
-                    if (converter.getOutDirectory() == null) {
-                        label.setTextFill(Color.web("#FF0000"));
-                        label.setText("Сначала выберите папку сохранения, только потом можно выбрать файл, который вы " +
-                                "хотите конвертировать!");
-                    } else {
-                        File file = fil_chooser.showOpenDialog(stage);
-
-                        if (file != null) {
-                            label.setTextFill(Color.web("#008000"));
-                            label.setText("Кажется получилось, проверьте результат в папке сохранения, которую вы выбрали " +
-                                    "ранее");
-                            converter.setInDirectory(file.getAbsolutePath());
-                            converter.convertXlsToCsv();
-                        }
+                    if (file != null) {
+                        label.setTextFill(Color.web("#008000"));
+                        label.setText("Кажется получилось, проверьте результат в папке сохранения, которую вы выбрали " +
+                                "ранее");
+                        converter.setInDirectory(file.getAbsolutePath());
+                        converter.convertXlsToCsv();
                     }
                 }
             };
@@ -91,26 +85,23 @@ public class FileChooser_2 extends Application {
 
 
             EventHandler<ActionEvent> openEvent =
-                    new EventHandler<ActionEvent>() {
-
-                        public void handle(ActionEvent e) {
-                            if (converter.getOutDirectory() == null) {
+                    e -> {
+                        if (converter.getOutDirectory() == null) {
+                            label.setTextFill(Color.web("#FF0000"));
+                            label.setText("Сначала выберите папку сохранения, только потом можно выбрать файл, который вы " +
+                                    "хотите конвертировать!");
+                        } else {
+                            String path = converter.getOutDirectory() + "\\output.txt";
+                            try {
+                                File file = new File(path);
+                                Desktop desktop = Desktop.getDesktop();
+                                desktop.open(file);
+                            } catch (IOException ex) {
                                 label.setTextFill(Color.web("#FF0000"));
                                 label.setText("Сначала выберите папку сохранения, только потом можно выбрать файл, который вы " +
                                         "хотите конвертировать!");
-                            } else {
-                                String path = converter.getOutDirectory() + "\\output.txt";
-                                try {
-                                    File file = new File(path);
-                                    Desktop desktop = Desktop.getDesktop();
-                                    desktop.open(file);
-                                } catch (IOException ex) {
-                                    label.setTextFill(Color.web("#FF0000"));
-                                    label.setText("Сначала выберите папку сохранения, только потом можно выбрать файл, который вы " +
-                                            "хотите конвертировать!");
 
-                                    throw new RuntimeException(ex);
-                                }
+                                throw new RuntimeException(ex);
                             }
                         }
                     };
